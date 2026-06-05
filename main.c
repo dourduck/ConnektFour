@@ -1,15 +1,12 @@
 #include "game.h"
 
 int main(void) {
-  GameConfig gameConfig;
-  gameConfig.gameTitle = "game";
-  gameConfig.screenWidth = 1080;
-  gameConfig.screenHeight = 720;
-  gameConfig.cellSize = 128;
+  GameConfig gameConfig = {.gameTitle = "Game",
+                           .cellSize = 128,
+                           .screenWidth = 1080,
+                           .screenHeight = 720};
 
-  GameData gameData;
-
-  StartUpdate(&gameData, &gameConfig);
+  GameRun(&gameConfig);
 
   return 0;
 }
