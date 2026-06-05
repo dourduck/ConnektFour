@@ -1,5 +1,6 @@
 #include "game.h"
 #include "raylib.h"
+#include "render.h"
 #include <stdbool.h>
 
 World World_Create() { return (World){.nextID = 1}; }
@@ -74,7 +75,11 @@ void InputApply(Input input) {
   }
 }
 
-void GameUpdate(World *world, float dt) {}
+void GameUpdate(World *world, float dt)
+{
+
+
+}
 
 void GameRun(GameConfig *config) {
   World world = World_Create();
@@ -109,7 +114,8 @@ void GameRun(GameConfig *config) {
     int x = (i % stride);
     int y = (i / stride);
 
-    WorldEntity_SetPosition(&world, entityID, (x * cellSize) + cellSize_half, (y * cellSize) + cellSize_half);
+    WorldEntity_SetPosition(&world, entityID, (x * cellSize) + cellSize_half,
+                            (y * cellSize) + cellSize_half);
 
     Puck puck = (x + y) % 2 == 0 ? PUCK_BLUE : PUCK_RED;
     WorldEntity_SetPuck(&world, entityID, puck);
@@ -117,7 +123,6 @@ void GameRun(GameConfig *config) {
     Traits traits = TRAITS_PUCK | TRAITS_POSITIONABLE;
     WorldEntity_TraitsAdd(&world, entityID, traits);
   }
-
 
   for (int i = 0; i < (stride * stride); i++) {
     EntityID entityID = WorldEntity_Create(&world);
@@ -137,43 +142,8 @@ void GameRun(GameConfig *config) {
 
     float dt = GetFrameTime();
 
-    BeginDrawing();
-    ClearBackground(SKYBLUE);
-    BeginMode2D(camera);
-
-    for (int i = 1; i <= world.nextID; i++) {
-      TraitFlag flag = TRAITS_PUCK | TRAITS_POSITIONABLE;
-
-      if (world.active[i] && WorldEntity_HasTrait(&world, i, flag)) {
-        Puck puck = world.puck[i];
-
-        float x = world.x[i];
-        float y = world.y[i];
-
-        if (puck == PUCK_BLUE) {
-          DrawCircle(x, y, puckRadius, BLUE);
-        } else if (puck == PUCK_RED) {
-          DrawCircle(x, y, puckRadius, RED);
-        } else {
-          DrawCircle(x, y, puckRadius, MAGENTA);
-        }
-      }
-    }
-
-    for (int i = 1; i <= world.nextID; i++) {
-      TraitFlag flag = TRAITS_CELL | TRAITS_POSITIONABLE;
-
-      if (world.active[i] && WorldEntity_HasTrait(&world, i, flag)) {
-        float x = world.x[i];
-        float y = world.y[i];
-        Rectangle r = {.x = x, .y = y, .width = cellSize, .height = cellSize};
-        DrawRectangleLinesEx(r, lineWidth, DARKGRAY);
-      }
-    }
-
-    EndMode2D();
-
-    EndDrawing();
+    GameUpdate(&world, dt);
+    RenderUpdate(&world, camera, cellSize, lineWidth, puckRadius);
   }
 
   CloseWindow();
