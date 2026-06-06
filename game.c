@@ -4,8 +4,20 @@
 #include <math.h>
 #include <stdbool.h>
 
-// EntityID CreatePuck(World *world, Puck puck, int xCellIdx, int yCellIdx, int
-// cellSize, int cellSize_half);
+// void GameUpdate(World *world, Input *input, int cellSize, int puckRadius,
+// float dt); void EntityVelocitySet(World* world, EntityID entityID, float dx,
+// float dy); void EntityVelocityApply(World* world, EntityID entityID, float
+// dt); #define GRAVITY 100
+
+void EntityVelocitySet(World *world, EntityID entityID, float dx, float dy) {
+  world->dx[entityID] = dx;
+  world->dy[entityID] = dy;
+}
+
+void EntityVelocityApply(World *world, EntityID entityID, float dt) {
+  world->x[entityID] += (world->dx[entityID] * dt);
+  world->y[entityID] += (world->dy[entityID] * dt);
+}
 
 World World_Create() { return (World){.nextID = 1}; }
 
@@ -80,9 +92,8 @@ void InputPull(Input *input, Camera2D camera, int cellSize) {
   input->mouseWorldPositionQuantized.y = y;
 }
 
-// void InputApply(Input input) { }
-
-void GameUpdate(World *world, Input *input, int cellSize, float dt) {
+void GameUpdate(World *world, Input *input, int cellSize, int cellSize_half,
+                float dt) {
   if (input->keyPressed_F) {
     ToggleFullscreen();
   }
@@ -97,7 +108,22 @@ void GameUpdate(World *world, Input *input, int cellSize, float dt) {
   if (input->mouseLeftPressed) {
     if (x >= 0 && x < (GAME_COLUMN * cellSize) && y >= 0 &&
         y < (GAME_ROW * cellSize)) {
-      CreatePuck(world, PUCK_RED, x, y, cellSize, (cellSize / 2));
+      int entityID =
+          CreatePuck(world, PUCK_RED, x, y, cellSize, (cellSize / 2));
+      EntityVelocitySet(world, entityID, 0, GRAVITY);
+    }
+  }
+
+  for (int i = 1; i < world->nextID; i++) {
+    if (WorldEntity_HasTrait(world, i,
+                             (TRAITS_POSITIONABLE | TRAITS_PHYSICS))) {
+      EntityVelocityApply(world, i, dt);
+    }
+    if (WorldEntity_HasTrait(
+            world, i, (TRAITS_POSITIONABLE | TRAITS_PHYSICS | TRAITS_PUCK))) {
+      if (world->y[i] >= (cellSize * GAME_ROW) - cellSize_half - 4) {
+        world->dy[i] = 0;
+      }
     }
   }
 }
@@ -111,8 +137,10 @@ EntityID CreatePuck(World *world, Puck puck, int posX, int posY, int cellSize,
 
   WorldEntity_SetPuck(world, entityID, puck);
 
-  Traits traits = TRAITS_PUCK | TRAITS_POSITIONABLE;
+  Traits traits = TRAITS_PUCK | TRAITS_POSITIONABLE | TRAITS_PHYSICS;
   WorldEntity_TraitsAdd(world, entityID, traits);
+
+  return entityID;
 }
 
 void GameRun(GameConfig *config) {
@@ -142,23 +170,6 @@ void GameRun(GameConfig *config) {
   int cellSize_half = cellSize / 2;
   int puckRadius = cellSize_half - (int)(lineWidth * 1.5);
 
-  // Puck Creation
-  // for (int i = 0; i < (stride * stride); i++) {
-  //   EntityID entityID = WorldEntity_Create(&world);
-  //
-  //   int x = (i % stride);
-  //   int y = (i / stride);
-  //
-  //   WorldEntity_SetPosition(&world, entityID, (x * cellSize) + cellSize_half,
-  //                           (y * cellSize) + cellSize_half);
-  //
-  //   Puck puck = (x + y) % 2 == 0 ? PUCK_BLUE : PUCK_RED;
-  //   WorldEntity_SetPuck(&world, entityID, puck);
-  //
-  //   Traits traits = TRAITS_PUCK | TRAITS_POSITIONABLE;
-  //   WorldEntity_TraitsAdd(&world, entityID, traits);
-  // }
-
   // Cell Creation
   for (int i = 0; i < (stride * stride); i++) {
     EntityID entityID = WorldEntity_Create(&world);
@@ -181,7 +192,7 @@ void GameRun(GameConfig *config) {
 
     float dt = GetFrameTime();
 
-    GameUpdate(&world, &input, cellSize, dt);
+    GameUpdate(&world, &input, cellSize, cellSize_half, dt);
     RenderUpdate(&world, &input, camera, cellSize, lineWidth, puckRadius);
   }
 

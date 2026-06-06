@@ -5,6 +5,7 @@
 #include <stdbool.h>
 #include <stdint.h>
 
+#define GRAVITY 800
 #define MAX_ENTITIES 128
 #define NIL 0
 
@@ -98,12 +99,15 @@ void InputPull(Input *input, Camera2D camera, int cellSize);
 
 void InputApply(Input input);
 
-void GameUpdate(World *world, Input *input, int cellSize, float dt);
+// void GameUpdate(World *world, Input *input, int cellSize, float dt);
 
 
 void GameRun(GameConfig* config);
 
 EntityID CreatePuck(World *world, Puck puck, int xCellIdx, int yCellIdx, int cellSize, int cellSize_half);
+void EntityVelocitySet(World* world, EntityID entityID, float dx, float dy);
+void EntityVelocityApply(World* world, EntityID entityID, float dt);
+void GameUpdate(World *world, Input *input, int cellSize, int cellSize_half, float dt);
 
 #endif
 /* vim:set ts=3 sw=2 sts=2 et: */
