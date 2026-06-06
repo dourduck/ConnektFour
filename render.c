@@ -2,8 +2,21 @@
 #include "game.h"
 #include "raylib.h"
 
-void RenderUpdate(World *world, Camera2D camera, int cellSize, int lineWidth,
-                  int puckRadius) {
+/* vvv DEBUG CONSLE vvv */
+void Draw_DebugConsole(Input *input) {
+  Rectangle r = {.x = 0, .y = 0, .width = GetRenderWidth(), .height = 300};
+  DrawRectangleRec(r, Fade(BLACK, 0.8));
+
+  int x = (input->mouseWorldPositionQuantized.x);
+  int y = (input->mouseWorldPositionQuantized.y);
+
+  DrawText(TextFormat("Mouse World Position Quantized: (%d, %d)", x, y), 10, 10,
+           24, RAYWHITE);
+}
+/* ^^^ DEBUG CONSLE ^^^ */
+
+void RenderUpdate(World *world, Input *input, Camera2D camera, int cellSize,
+                  int lineWidth, int puckRadius) {
   BeginDrawing();
   ClearBackground(SKYBLUE);
   BeginMode2D(camera);
@@ -38,7 +51,19 @@ void RenderUpdate(World *world, Camera2D camera, int cellSize, int lineWidth,
     }
   }
 
+  int x = (input->mouseWorldPositionQuantized.x);
+  int y = (input->mouseWorldPositionQuantized.y);
+
+  if (x >= 0 && x < (GAME_COLUMN * cellSize) && y >= 0 &&
+      y < (GAME_ROW * cellSize)) {
+    DrawCircle(x + (cellSize / 2), y + (cellSize / 2), 8, MAGENTA);
+  }
+
   EndMode2D();
+
+  if (world->console) {
+    Draw_DebugConsole(input);
+  }
 
   EndDrawing();
 }

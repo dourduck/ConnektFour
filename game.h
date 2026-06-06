@@ -57,11 +57,17 @@ struct World {
 
   Text text[MAX_ENTITIES];
   Puck puck[MAX_ENTITIES];
+
+  bool console;
 };
 
 typedef struct {
   Vector2 mouseWorldPosition;
+  Vector2 mouseWorldPositionQuantized;
   bool keyPressed_F;
+  bool keyPressed_GRAVE;
+  bool mouseLeftPressed;
+
 } Input;
 
 World World_Create();
@@ -87,13 +93,17 @@ void WorldEntity_SetText(World *world, EntityID entityID, Text text);
 
 void WorldEntity_SetPuck(World *world, EntityID entityID, Puck puck);
 
-void InputPull(Input *input, Camera2D camera);
+// void InputPull(Input *input, Camera2D camera);
+void InputPull(Input *input, Camera2D camera, int cellSize);
 
 void InputApply(Input input);
 
-void GameUpdate(World *world, float dt);
+void GameUpdate(World *world, Input *input, int cellSize, float dt);
+
 
 void GameRun(GameConfig* config);
+
+EntityID CreatePuck(World *world, Puck puck, int xCellIdx, int yCellIdx, int cellSize, int cellSize_half);
 
 #endif
 /* vim:set ts=3 sw=2 sts=2 et: */
