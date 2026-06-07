@@ -4,11 +4,6 @@
 #include <math.h>
 #include <stdbool.h>
 
-// void GameUpdate(World *world, Input *input, int cellSize, int puckRadius,
-// float dt); void EntityVelocitySet(World* world, EntityID entityID, float dx,
-// float dy); void EntityVelocityApply(World* world, EntityID entityID, float
-// dt); #define GRAVITY 100
-
 void EntityVelocitySet(World *world, EntityID entityID, float dx, float dy) {
   world->dx[entityID] = dx;
   world->dy[entityID] = dy;
@@ -82,6 +77,7 @@ void InputPull(Input *input, Camera2D camera, int cellSize) {
   Vector2 mouseWorldPosition = GetScreenToWorld2D(GetMousePosition(), camera);
   input->mouseWorldPosition.x = mouseWorldPosition.x;
   input->mouseWorldPosition.y = mouseWorldPosition.y;
+
   input->keyPressed_F = IsKeyPressed(KEY_F);
   input->mouseLeftPressed = IsMouseButtonPressed(MOUSE_LEFT_BUTTON);
   input->keyPressed_GRAVE = IsKeyPressed(KEY_GRAVE);
@@ -101,29 +97,43 @@ void GameUpdate(World *world, Input *input, int cellSize, int cellSize_half,
   int x = input->mouseWorldPositionQuantized.x;
   int y = input->mouseWorldPositionQuantized.y;
 
-  if (x >= 0 && x < (GAME_COLUMN * cellSize) && y >= 0 &&
-      y < (GAME_ROW * cellSize)) {
-  }
+  if (input->mouseLeftPressed && !world->puckFalling) {
+    if (world->currentPuckTeam == PUCK_NIL) {
+      world->currentPuckTeam = PUCK_BLUE;
+    } else {
+      world->currentPuckTeam =
+          world->currentPuckTeam == PUCK_BLUE ? PUCK_RED : PUCK_BLUE;
+    }
 
-  if (input->mouseLeftPressed) {
     if (x >= 0 && x < (GAME_COLUMN * cellSize) && y >= 0 &&
         y < (GAME_ROW * cellSize)) {
-      int entityID =
-          CreatePuck(world, PUCK_RED, x, y, cellSize, (cellSize / 2));
-      EntityVelocitySet(world, entityID, 0, GRAVITY);
+      int column = x / cellSize;
+      if (world->columnStopPosition[column] < GAME_ROW) {
+        int entityID = CreatePuck(world, world->currentPuckTeam, x, 0, cellSize,
+                                  (cellSize / 2));
+        EntityVelocitySet(world, entityID, 0, GRAVITY);
+
+        world->puckColumnIndex[entityID] = column;
+        world->puckFalling = true;
+        world->currentPuckIndex = entityID;
+      }
     }
   }
 
-  for (int i = 1; i < world->nextID; i++) {
-    if (WorldEntity_HasTrait(world, i,
-                             (TRAITS_POSITIONABLE | TRAITS_PHYSICS))) {
-      EntityVelocityApply(world, i, dt);
-    }
-    if (WorldEntity_HasTrait(
-            world, i, (TRAITS_POSITIONABLE | TRAITS_PHYSICS | TRAITS_PUCK))) {
-      if (world->y[i] >= (cellSize * GAME_ROW) - cellSize_half - 4) {
-        world->dy[i] = 0;
-      }
+  if (world->puckFalling && world->currentPuckIndex != NIL) {
+    EntityVelocityApply(world, world->currentPuckIndex, dt);
+
+    int column = world->puckColumnIndex[world->currentPuckIndex];
+    int stopPosition =
+        ((GAME_ROW - world->columnStopPosition[column]) * cellSize) -
+        cellSize_half;
+
+    if (world->y[world->currentPuckIndex] >= stopPosition) {
+      world->dy[world->currentPuckIndex] = 0;
+      world->y[world->currentPuckIndex] = stopPosition;
+      world->columnStopPosition[column]++;
+
+      world->puckFalling = false;
     }
   }
 }

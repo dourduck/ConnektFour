@@ -60,6 +60,13 @@ struct World {
   Puck puck[MAX_ENTITIES];
 
   bool console;
+  bool puckFalling;
+
+  int columnStopPosition[7];
+
+  int puckColumnIndex[MAX_ENTITIES];
+  int currentPuckIndex;
+  Puck currentPuckTeam;
 };
 
 typedef struct {
@@ -101,13 +108,14 @@ void InputApply(Input input);
 
 // void GameUpdate(World *world, Input *input, int cellSize, float dt);
 
+void GameRun(GameConfig *config);
 
-void GameRun(GameConfig* config);
-
-EntityID CreatePuck(World *world, Puck puck, int xCellIdx, int yCellIdx, int cellSize, int cellSize_half);
-void EntityVelocitySet(World* world, EntityID entityID, float dx, float dy);
-void EntityVelocityApply(World* world, EntityID entityID, float dt);
-void GameUpdate(World *world, Input *input, int cellSize, int cellSize_half, float dt);
+EntityID CreatePuck(World *world, Puck puck, int xCellIdx, int yCellIdx,
+                    int cellSize, int cellSize_half);
+void EntityVelocitySet(World *world, EntityID entityID, float dx, float dy);
+void EntityVelocityApply(World *world, EntityID entityID, float dt);
+void GameUpdate(World *world, Input *input, int cellSize, int cellSize_half,
+                float dt);
 
 #endif
 /* vim:set ts=3 sw=2 sts=2 et: */

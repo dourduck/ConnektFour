@@ -5,7 +5,7 @@
 /* vvv DEBUG CONSLE vvv */
 void Draw_DebugConsole(Input *input) {
   Rectangle r = {.x = 0, .y = 0, .width = GetRenderWidth(), .height = 300};
-  DrawRectangleRec(r, Fade(BLACK, 0.8));
+  DrawRectangleRec(r, Fade(BLACK, 0.6));
 
   int x = (input->mouseWorldPositionQuantized.x);
   int y = (input->mouseWorldPositionQuantized.y);
@@ -54,9 +54,11 @@ void RenderUpdate(World *world, Input *input, Camera2D camera, int cellSize,
   int x = (input->mouseWorldPositionQuantized.x);
   int y = (input->mouseWorldPositionQuantized.y);
 
-  if (x >= 0 && x < (GAME_COLUMN * cellSize) && y >= 0 &&
-      y < (GAME_ROW * cellSize)) {
-    DrawCircle(x + (cellSize / 2), y + (cellSize / 2), 8, MAGENTA);
+  if (world->console) {
+    if (x >= 0 && x < (GAME_COLUMN * cellSize) && y >= 0 &&
+        y < (GAME_ROW * cellSize)) {
+      DrawCircle(x + (cellSize / 2), y + (cellSize / 2), 8, MAGENTA);
+    }
   }
 
   EndMode2D();
