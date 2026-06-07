@@ -67,6 +67,7 @@ struct World {
   int puckColumnIndex[MAX_ENTITIES];
   int currentPuckIndex;
   Puck currentPuckTeam;
+  Puck grid[GAME_COLUMN * GAME_ROW];
 };
 
 typedef struct {

@@ -18,7 +18,7 @@ void Draw_DebugConsole(Input *input) {
 void RenderUpdate(World *world, Input *input, Camera2D camera, int cellSize,
                   int lineWidth, int puckRadius) {
   BeginDrawing();
-  ClearBackground(SKYBLUE);
+  ClearBackground(DARKBLUE);
   BeginMode2D(camera);
 
   for (int i = 1; i <= world->nextID; i++) {
@@ -55,6 +55,16 @@ void RenderUpdate(World *world, Input *input, Camera2D camera, int cellSize,
   int y = (input->mouseWorldPositionQuantized.y);
 
   if (world->console) {
+    for (int i = 0; i < GAME_COLUMN * GAME_ROW; i++) {
+      int xx = ((i % GAME_COLUMN) * cellSize) + cellSize / 2;
+      int yy = ((i / GAME_COLUMN) * cellSize) + cellSize / 2;
+      Puck puck = world->grid[i];
+      Color color = puck == PUCK_BLUE  ? SKYBLUE
+                    : puck == PUCK_NIL ? LIGHTGRAY
+                                       : MAROON;
+      DrawCircle(xx, yy, 8, color);
+    }
+
     if (x >= 0 && x < (GAME_COLUMN * cellSize) && y >= 0 &&
         y < (GAME_ROW * cellSize)) {
       DrawCircle(x + (cellSize / 2), y + (cellSize / 2), 8, MAGENTA);

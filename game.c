@@ -134,6 +134,10 @@ void GameUpdate(World *world, Input *input, int cellSize, int cellSize_half,
       world->columnStopPosition[column]++;
 
       world->puckFalling = false;
+
+      int gridIdx =
+          ((stopPosition) / cellSize) * GAME_ROW + column;
+      world->grid[gridIdx] = world->currentPuckTeam;
     }
   }
 }
