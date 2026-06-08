@@ -77,13 +77,49 @@ void RenderUpdate(World *world, Input *input, Camera2D camera, int cellSize,
     Draw_DebugConsole(input);
   }
 
-  if(world->winner == PUCK_BLUE){
-    DrawText("BLUE WON!!!", 100, 100, 100, SKYBLUE);
+  if (world->winner == PUCK_BLUE) {
+    Rectangle r = {
+        .x = (int)((GetRenderWidth() / 2) -
+                   (MeasureText("Press R to restart...", 100) / 2) - 100),
+        .y = (((MeasureTextEx(
+                    GetFontDefault(),
+                    "BLUE WON!!!\nPress R to restart...\nPress Q to quit", 100,
+                    1.0))
+                   .y) /
+              2) -
+             75,
+        .width = MeasureText("Press R to restart...", 100) + 200,
+        .height =
+            MeasureTextEx(GetFontDefault(),
+                          "BLUE WON!!!\nPress R to restart...\nPress Q to quit",
+                          100, 1.0)
+                .y};
+    DrawRectangleRec(r, Fade(BLACK, 0.6));
+    DrawText("BLUE WON!!!", 500, 100, 100, SKYBLUE);
+    DrawText("Press R to restart...", 500, 200, 100, PURPLE);
+    DrawText("Press Q to quit", 500, 300, 50, DARKBLUE);
+  } else if (world->winner == PUCK_RED) {
+    Rectangle r = {
+        .x = (int)((GetRenderWidth() / 2) -
+                   (MeasureText("Press R to restart...", 100) / 2) - 100),
+        .y = (((MeasureTextEx(
+                    GetFontDefault(),
+                    "BLUE WON!!!\nPress R to restart...\nPress Q to quit", 100,
+                    1.0))
+                   .y) /
+              2) -
+             75,
+        .width = MeasureText("Press R to restart...", 100) + 200,
+        .height =
+            MeasureTextEx(GetFontDefault(),
+                          "RED WON!!!\nPress R to restart...\nPress Q to quit",
+                          100, 1.0)
+                .y};
+    DrawRectangleRec(r, Fade(BLACK, 0.6));
+    DrawText("RED WON!!!", 500, 100, 100, PINK);
+    DrawText("Press R to restart...", 500, 200, 100, PURPLE);
+    DrawText("Press Q to quit", 500, 300, 50, DARKBLUE);
   }
-  else if(world->winner == PUCK_RED){
-    DrawText("RED WON!!!", 100, 100, 100, PINK);
-  }
-
 
   EndDrawing();
 }

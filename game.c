@@ -3,7 +3,6 @@
 #include "render.h"
 #include <math.h>
 #include <stdbool.h>
-#include <stdio.h>
 
 Puck CheckForWin(World *world, int puckGridIndex, Puck puckValue) {
   int deltas[4][2] = {
@@ -126,6 +125,7 @@ void InputPull(Input *input, Camera2D camera, int cellSize) {
   input->mouseWorldPosition.y = mouseWorldPosition.y;
 
   input->keyPressed_F = IsKeyPressed(KEY_F);
+  input->keyPressed_R = IsKeyPressed(KEY_R);
   input->mouseLeftPressed = IsMouseButtonPressed(MOUSE_LEFT_BUTTON);
   input->keyPressed_GRAVE = IsKeyPressed(KEY_GRAVE);
 
@@ -139,6 +139,72 @@ void GameUpdate(World *world, Input *input, int cellSize, int cellSize_half,
                 float dt) {
   if (input->keyPressed_F) {
     ToggleFullscreen();
+  } else if (input->keyPressed_R) {
+    for (int i = 0; i < world->nextID; i++) {
+        WorldEntity_Remove(world, i);
+        world->puckColumnIndex[i] = 0;
+    }
+
+    world->nextID = 1;
+    world->currentPuckIndex = 0;
+    world->currentPuckTeam = PUCK_NIL;
+
+    for (int i = 0; i < 7; i++) {
+      world->columnStopPosition[i] = 0;
+    }
+    world->puckFalling = false;
+    world->console = false;
+
+    for (int i = 0; i < GAME_COLUMN * GAME_ROW; i++) {
+      world->grid[i] = PUCK_NIL;
+    }
+
+    world->winner = PUCK_NIL;
+
+    int stride = 7;
+    int lineWidth = 4;
+    int cellSize_half = cellSize / 2;
+    int puckRadius = cellSize_half - (int)(lineWidth * 1.5);
+
+    // Cell Creation
+    for (int i = 0; i < (stride * stride); i++) {
+      EntityID entityID = WorldEntity_Create(world);
+
+      int x = (i % stride);
+      int y = (i / stride);
+
+      WorldEntity_SetPosition(world, entityID, (x * cellSize), (y * cellSize));
+
+      Traits traits = TRAITS_CELL | TRAITS_POSITIONABLE;
+      WorldEntity_TraitsAdd(world, entityID, traits);
+    }
+
+    // EntityID nextID;
+    //
+    // bool active[MAX_ENTITIES];
+    //
+    // Traits traits[MAX_ENTITIES];
+    //
+    // PositionX x[MAX_ENTITIES];
+    // PositionY y[MAX_ENTITIES];
+    //
+    // VelocityX dx[MAX_ENTITIES];
+    // VelocityY dy[MAX_ENTITIES];
+    //
+    // Text text[MAX_ENTITIES];
+    // Puck puck[MAX_ENTITIES];
+    //
+    // bool console;
+    // bool puckFalling;
+    //
+    // int columnStopPosition[7];
+    //
+    // int puckColumnIndex[MAX_ENTITIES];
+    // int currentPuckIndex;
+    // Puck currentPuckTeam;
+    // Puck grid[GAME_COLUMN * GAME_ROW];
+    //
+    // Puck winner;
   }
 
   if (world->winner == PUCK_NIL) {

@@ -76,6 +76,7 @@ typedef struct {
   Vector2 mouseWorldPosition;
   Vector2 mouseWorldPositionQuantized;
   bool keyPressed_F;
+  bool keyPressed_R;
   bool keyPressed_GRAVE;
   bool mouseLeftPressed;
 
