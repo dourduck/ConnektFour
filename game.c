@@ -3,6 +3,53 @@
 #include "render.h"
 #include <math.h>
 #include <stdbool.h>
+#include <stdio.h>
+
+Puck CheckForWin(World *world, int puckGridIndex, Puck puckValue) {
+  int deltas[4][2] = {
+      {-1, 0},  // West -> East
+      {-1, -1}, // North West -> South East
+      {0, -1},  // North -> South
+      {1, -1},  // North East -> South West
+  };
+
+  int stride = GAME_COLUMN;
+  int puckX = puckGridIndex % stride;
+  int puckY = puckGridIndex / stride;
+
+  for (int i = 0; i < 4; i++) {
+    int dx = deltas[i][0];
+    int dy = deltas[i][1];
+
+    for (int j = -3; j <= 0; j++) {
+      int xx = puckX + (dx * j);
+      int yy = puckY + (dy * j);
+
+      int matchCount = 0;
+
+      for (int k = 0; k < 4; k++) {
+        int nx = xx + ((dx) * k);
+        int ny = yy + ((dy) * k);
+
+        if (nx >= 0 && nx < stride && ny >= 0 && ny < GAME_ROW) {
+
+          int idx = ny * stride + nx;
+          int nPuck = world->grid[idx];
+
+          if (idx == puckGridIndex || nPuck == puckValue) {
+            matchCount++;
+          }
+        }
+      }
+
+      if (matchCount >= 4) {
+        return puckValue;
+      }
+    }
+  }
+
+  return PUCK_NIL;
+}
 
 void EntityVelocitySet(World *world, EntityID entityID, float dx, float dy) {
   world->dx[entityID] = dx;
@@ -133,11 +180,19 @@ void GameUpdate(World *world, Input *input, int cellSize, int cellSize_half,
       world->y[world->currentPuckIndex] = stopPosition;
       world->columnStopPosition[column]++;
 
-      world->puckFalling = false;
-
-      int gridIdx =
-          ((stopPosition) / cellSize) * GAME_ROW + column;
+      int gridIdx = ((stopPosition) / cellSize) * GAME_ROW + column;
       world->grid[gridIdx] = world->currentPuckTeam;
+
+      Puck potentialWinPuck =
+          CheckForWin(world, gridIdx, world->currentPuckTeam);
+
+      if (potentialWinPuck != PUCK_NIL) {
+        const char *winTeam =
+            potentialWinPuck == PUCK_BLUE ? "\nBLUE" : "\nRED";
+        printf("\n%s Won!!!\n", winTeam);
+      }
+
+      world->puckFalling = false;
     }
   }
 }

@@ -18,7 +18,7 @@ void Draw_DebugConsole(Input *input) {
 void RenderUpdate(World *world, Input *input, Camera2D camera, int cellSize,
                   int lineWidth, int puckRadius) {
   BeginDrawing();
-  ClearBackground(DARKBLUE);
+  ClearBackground(DARKGRAY);
   BeginMode2D(camera);
 
   for (int i = 1; i <= world->nextID; i++) {
@@ -31,7 +31,7 @@ void RenderUpdate(World *world, Input *input, Camera2D camera, int cellSize,
       float y = world->y[i];
 
       if (puck == PUCK_BLUE) {
-        DrawCircle(x, y, puckRadius, BLUE);
+        DrawCircle(x, y, puckRadius, SKYBLUE);
       } else if (puck == PUCK_RED) {
         DrawCircle(x, y, puckRadius, RED);
       } else {
@@ -47,7 +47,7 @@ void RenderUpdate(World *world, Input *input, Camera2D camera, int cellSize,
       float x = world->x[i];
       float y = world->y[i];
       Rectangle r = {.x = x, .y = y, .width = cellSize, .height = cellSize};
-      DrawRectangleLinesEx(r, lineWidth, DARKGRAY);
+      DrawRectangleLinesEx(r, lineWidth, LIGHTGRAY);
     }
   }
 
@@ -59,7 +59,7 @@ void RenderUpdate(World *world, Input *input, Camera2D camera, int cellSize,
       int xx = ((i % GAME_COLUMN) * cellSize) + cellSize / 2;
       int yy = ((i / GAME_COLUMN) * cellSize) + cellSize / 2;
       Puck puck = world->grid[i];
-      Color color = puck == PUCK_BLUE  ? SKYBLUE
+      Color color = puck == PUCK_BLUE  ? DARKBLUE
                     : puck == PUCK_NIL ? LIGHTGRAY
                                        : MAROON;
       DrawCircle(xx, yy, 8, color);

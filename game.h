@@ -118,5 +118,6 @@ void EntityVelocityApply(World *world, EntityID entityID, float dt);
 void GameUpdate(World *world, Input *input, int cellSize, int cellSize_half,
                 float dt);
 
+Puck CheckForWin(World *world, int puckGridIndex, Puck puckValue);
 #endif
 /* vim:set ts=3 sw=2 sts=2 et: */
