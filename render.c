@@ -77,6 +77,14 @@ void RenderUpdate(World *world, Input *input, Camera2D camera, int cellSize,
     Draw_DebugConsole(input);
   }
 
+  if(world->winner == PUCK_BLUE){
+    DrawText("BLUE WON!!!", 100, 100, 100, SKYBLUE);
+  }
+  else if(world->winner == PUCK_RED){
+    DrawText("RED WON!!!", 100, 100, 100, PINK);
+  }
+
+
   EndDrawing();
 }
 

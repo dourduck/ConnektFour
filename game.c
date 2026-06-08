@@ -28,8 +28,8 @@ Puck CheckForWin(World *world, int puckGridIndex, Puck puckValue) {
       int matchCount = 0;
 
       for (int k = 0; k < 4; k++) {
-        int nx = xx + ((dx) * k);
-        int ny = yy + ((dy) * k);
+        int nx = xx + ((dx)*k);
+        int ny = yy + ((dy)*k);
 
         if (nx >= 0 && nx < stride && ny >= 0 && ny < GAME_ROW) {
 
@@ -141,58 +141,53 @@ void GameUpdate(World *world, Input *input, int cellSize, int cellSize_half,
     ToggleFullscreen();
   }
 
-  int x = input->mouseWorldPositionQuantized.x;
-  int y = input->mouseWorldPositionQuantized.y;
+  if (world->winner == PUCK_NIL) {
+    int x = input->mouseWorldPositionQuantized.x;
+    int y = input->mouseWorldPositionQuantized.y;
 
-  if (input->mouseLeftPressed && !world->puckFalling) {
-    if (world->currentPuckTeam == PUCK_NIL) {
-      world->currentPuckTeam = PUCK_BLUE;
-    } else {
-      world->currentPuckTeam =
-          world->currentPuckTeam == PUCK_BLUE ? PUCK_RED : PUCK_BLUE;
-    }
-
-    if (x >= 0 && x < (GAME_COLUMN * cellSize) && y >= 0 &&
-        y < (GAME_ROW * cellSize)) {
-      int column = x / cellSize;
-      if (world->columnStopPosition[column] < GAME_ROW) {
-        int entityID = CreatePuck(world, world->currentPuckTeam, x, 0, cellSize,
-                                  (cellSize / 2));
-        EntityVelocitySet(world, entityID, 0, GRAVITY);
-
-        world->puckColumnIndex[entityID] = column;
-        world->puckFalling = true;
-        world->currentPuckIndex = entityID;
-      }
-    }
-  }
-
-  if (world->puckFalling && world->currentPuckIndex != NIL) {
-    EntityVelocityApply(world, world->currentPuckIndex, dt);
-
-    int column = world->puckColumnIndex[world->currentPuckIndex];
-    int stopPosition =
-        ((GAME_ROW - world->columnStopPosition[column]) * cellSize) -
-        cellSize_half;
-
-    if (world->y[world->currentPuckIndex] >= stopPosition) {
-      world->dy[world->currentPuckIndex] = 0;
-      world->y[world->currentPuckIndex] = stopPosition;
-      world->columnStopPosition[column]++;
-
-      int gridIdx = ((stopPosition) / cellSize) * GAME_ROW + column;
-      world->grid[gridIdx] = world->currentPuckTeam;
-
-      Puck potentialWinPuck =
-          CheckForWin(world, gridIdx, world->currentPuckTeam);
-
-      if (potentialWinPuck != PUCK_NIL) {
-        const char *winTeam =
-            potentialWinPuck == PUCK_BLUE ? "\nBLUE" : "\nRED";
-        printf("\n%s Won!!!\n", winTeam);
+    if (input->mouseLeftPressed && !world->puckFalling) {
+      if (world->currentPuckTeam == PUCK_NIL) {
+        world->currentPuckTeam = PUCK_BLUE;
+      } else {
+        world->currentPuckTeam =
+            world->currentPuckTeam == PUCK_BLUE ? PUCK_RED : PUCK_BLUE;
       }
 
-      world->puckFalling = false;
+      if (x >= 0 && x < (GAME_COLUMN * cellSize) && y >= 0 &&
+          y < (GAME_ROW * cellSize)) {
+        int column = x / cellSize;
+        if (world->columnStopPosition[column] < GAME_ROW) {
+          int entityID = CreatePuck(world, world->currentPuckTeam, x, 0,
+                                    cellSize, (cellSize / 2));
+          EntityVelocitySet(world, entityID, 0, GRAVITY);
+
+          world->puckColumnIndex[entityID] = column;
+          world->puckFalling = true;
+          world->currentPuckIndex = entityID;
+        }
+      }
+    }
+
+    if (world->puckFalling && world->currentPuckIndex != NIL) {
+      EntityVelocityApply(world, world->currentPuckIndex, dt);
+
+      int column = world->puckColumnIndex[world->currentPuckIndex];
+      int stopPosition =
+          ((GAME_ROW - world->columnStopPosition[column]) * cellSize) -
+          cellSize_half;
+
+      if (world->y[world->currentPuckIndex] >= stopPosition) {
+        world->dy[world->currentPuckIndex] = 0;
+        world->y[world->currentPuckIndex] = stopPosition;
+        world->columnStopPosition[column]++;
+
+        int gridIdx = ((stopPosition) / cellSize) * GAME_ROW + column;
+        world->grid[gridIdx] = world->currentPuckTeam;
+
+        world->winner = CheckForWin(world, gridIdx, world->currentPuckTeam);
+
+        world->puckFalling = false;
+      }
     }
   }
 }

@@ -68,6 +68,8 @@ struct World {
   int currentPuckIndex;
   Puck currentPuckTeam;
   Puck grid[GAME_COLUMN * GAME_ROW];
+
+  Puck winner;
 };
 
 typedef struct {
